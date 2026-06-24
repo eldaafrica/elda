@@ -1,0 +1,22 @@
+# ─── Exemple de configuration locale ─────────────────────────────────────────
+# 1. Copiez ce fichier : cp application-local.yml.example application-local.yml
+# 2. Remplissez vos vraies valeurs
+# 3. Lancez avec le profil "local" (voir ci-dessous)
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eisa_nexus
+    username: YOUR_PG_USER
+    password: YOUR_PG_PASSWORD
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # create | update | validate | none
+    show-sql: false
+
+app:
+  jwt:
+    secret: CHANGE_ME_TO_A_LONG_RANDOM_BASE64_STRING
+  bootstrap:
+    admin-email: admin@eisa.org
+    admin-password: CHANGE_ME

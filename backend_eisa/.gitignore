@@ -1,0 +1,22 @@
+# ─── Build ────────────────────────────────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+
+# ─── Maven ────────────────────────────────────────────────────────────────────
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# ─── Secrets & config locale (NE JAMAIS COMMITTER) ───────────────────────────
+src/main/resources/application-local.yml
+.env
+.env.local
+.env.production

@@ -1,0 +1,740 @@
+// Mock dataset for the ELDA AFRICA Electoral Recommendations Database prototype.
+// All values are illustrative.
+
+export type Status =
+  | "new"
+  | "in_progress"
+  | "partial"
+  | "implemented"
+  | "not_implemented"
+  | "unknown";
+
+export type Priority = "high" | "medium" | "low";
+
+export type Theme =
+  | "legal"
+  | "admin"
+  | "voter"
+  | "campaign"
+  | "media"
+  | "results"
+  | "inclusion"
+  | "security"
+  | "civic";
+
+export type Visibility = "public" | "internal" | "draft";
+
+export type Country = {
+  code: string;
+  name: { en: string; fr: string };
+  region: "West" | "East" | "Southern" | "North" | "Central";
+};
+
+export const countries: Country[] = [
+  { code: "ZA", name: { en: "South Africa", fr: "Afrique du Sud" }, region: "Southern" },
+  { code: "KE", name: { en: "Kenya", fr: "Kenya" }, region: "East" },
+  { code: "NG", name: { en: "Nigeria", fr: "Nigéria" }, region: "West" },
+  { code: "SN", name: { en: "Senegal", fr: "Sénégal" }, region: "West" },
+  { code: "GH", name: { en: "Ghana", fr: "Ghana" }, region: "West" },
+  { code: "ZW", name: { en: "Zimbabwe", fr: "Zimbabwe" }, region: "Southern" },
+  { code: "MZ", name: { en: "Mozambique", fr: "Mozambique" }, region: "Southern" },
+  { code: "TZ", name: { en: "Tanzania", fr: "Tanzanie" }, region: "East" },
+  { code: "UG", name: { en: "Uganda", fr: "Ouganda" }, region: "East" },
+  { code: "CI", name: { en: "Côte d'Ivoire", fr: "Côte d'Ivoire" }, region: "West" },
+  { code: "ML", name: { en: "Mali", fr: "Mali" }, region: "West" },
+  { code: "MG", name: { en: "Madagascar", fr: "Madagascar" }, region: "East" },
+  { code: "TN", name: { en: "Tunisia", fr: "Tunisie" }, region: "North" },
+  { code: "CD", name: { en: "DR Congo", fr: "RD Congo" }, region: "Central" },
+  { code: "ET", name: { en: "Ethiopia", fr: "Éthiopie" }, region: "East" },
+];
+
+export type Mission = {
+  id: string;
+  code: string;
+  type: "Observation" | "Assistance" | "Technical review";
+  country: string; // country code
+  cycle: string; // e.g. "Presidential 2023"
+  startDate: string;
+  endDate: string;
+  leadObserver: string;
+  summary: { en: string; fr: string };
+};
+
+export const missions: Mission[] = [
+  {
+    id: "m-ke-2022",
+    code: "UA-EOM-KE-2022",
+    type: "Observation",
+    country: "KE",
+    cycle: "General Elections 2022",
+    startDate: "2022-07-15",
+    endDate: "2022-08-25",
+    leadObserver: "Lenny Taabu",
+    summary: {
+      en: "Long-term observation mission deployed across all 47 counties for the August 2022 general elections.",
+      fr: "Mission d'observation de long terme déployée dans les 47 comtés pour les élections générales d'août 2022.",
+    },
+  },
+  {
+    id: "m-ng-2023",
+    code: "UA-EOM-NG-2023",
+    type: "Observation",
+    country: "NG",
+    cycle: "Presidential & Gubernatorial 2023",
+    startDate: "2023-01-20",
+    endDate: "2023-04-10",
+    leadObserver: "Amb. Olusegun Adekoya",
+    summary: {
+      en: "Comprehensive observation mission covering presidential, national assembly and gubernatorial polls.",
+      fr: "Mission d'observation complète couvrant les scrutins présidentiel, législatif et des gouverneurs.",
+    },
+  },
+  {
+    id: "m-sn-2024",
+    code: "UA-EOM-SN-2024",
+    type: "Observation",
+    country: "SN",
+    cycle: "Presidential 2024",
+    startDate: "2024-02-01",
+    endDate: "2024-04-05",
+    leadObserver: "Mme. Aïssatou Diallo",
+    summary: {
+      en: "Observation mission deployed amid contested electoral calendar and political tensions.",
+      fr: "Mission d'observation déployée dans un contexte de calendrier électoral contesté et de tensions politiques.",
+    },
+  },
+  {
+    id: "m-za-2024",
+    code: "UA-EOM-ZA-2024",
+    type: "Observation",
+    country: "ZA",
+    cycle: "National & Provincial 2024",
+    startDate: "2024-04-15",
+    endDate: "2024-06-15",
+    leadObserver: "Prof. Thabo Sithole",
+    summary: {
+      en: "Mission observed the seventh democratic election since 1994, including the new ballot for independents.",
+      fr: "Mission ayant observé la septième élection démocratique depuis 1994, incluant le nouveau bulletin pour les indépendants.",
+    },
+  },
+  {
+    id: "m-gh-2024",
+    code: "UA-EOM-GH-2024",
+    type: "Observation",
+    country: "GH",
+    cycle: "General Elections 2024",
+    startDate: "2024-11-01",
+    endDate: "2024-12-20",
+    leadObserver: "Dr. Kwame Asante",
+    summary: {
+      en: "Observation of the December 2024 general elections, with focus on results management and transmission.",
+      fr: "Observation des élections générales de décembre 2024, avec un focus sur la gestion et la transmission des résultats.",
+    },
+  },
+  {
+    id: "m-tn-2024",
+    code: "UA-TA-TN-2024",
+    type: "Assistance",
+    country: "TN",
+    cycle: "Presidential 2024",
+    startDate: "2024-08-01",
+    endDate: "2024-10-30",
+    leadObserver: "M. Karim Belhaj",
+    summary: {
+      en: "Technical assistance mission supporting the electoral commission on results management.",
+      fr: "Mission d'assistance technique appuyant la commission électorale sur la gestion des résultats.",
+    },
+  },
+  {
+    id: "m-mz-2024",
+    code: "UA-EOM-MZ-2024",
+    type: "Observation",
+    country: "MZ",
+    cycle: "General Elections 2024",
+    startDate: "2024-09-15",
+    endDate: "2024-11-20",
+    leadObserver: "Sra. Lúcia Macamo",
+    summary: {
+      en: "Mission deployed during the October 2024 general elections amid post-election tensions.",
+      fr: "Mission déployée lors des élections générales d'octobre 2024 dans un contexte de tensions post-électorales.",
+    },
+  },
+  {
+    id: "m-mg-2023",
+    code: "UA-EOM-MG-2023",
+    type: "Observation",
+    country: "MG",
+    cycle: "Presidential 2023",
+    startDate: "2023-10-01",
+    endDate: "2023-12-15", 
+    leadObserver: "M. Jean-Eric Rakoto",
+    summary: {
+      en: "Observation mission to the November 2023 presidential election.",
+      fr: "Mission d'observation pour la présidentielle de novembre 2023.",
+    },
+  },
+];
+
+export type Institution = {
+  id: string;
+  name: string;
+  country: string;
+  category: "EMB" | "Parliament" | "Judiciary" | "Government" | "Civil society";
+};
+
+export const institutions: Institution[] = [
+  {
+    id: "i-1",
+    name: "Independent Electoral and Boundaries Commission",
+    country: "KE",
+    category: "EMB",
+  },
+  { id: "i-2", name: "Independent National Electoral Commission", country: "NG", category: "EMB" },
+  { id: "i-3", name: "Direction Générale des Élections", country: "SN", category: "EMB" },
+  { id: "i-4", name: "Electoral Commission of South Africa (IEC)", country: "ZA", category: "EMB" },
+  { id: "i-5", name: "Electoral Commission of Ghana", country: "GH", category: "EMB" },
+  {
+    id: "i-6",
+    name: "Instance Supérieure Indépendante pour les Élections",
+    country: "TN",
+    category: "EMB",
+  },
+  { id: "i-7", name: "Comissão Nacional de Eleições", country: "MZ", category: "EMB" },
+  {
+    id: "i-8",
+    name: "Commission Électorale Nationale Indépendante",
+    country: "MG",
+    category: "EMB",
+  },
+  { id: "i-9", name: "Parliament of Kenya", country: "KE", category: "Parliament" },
+  { id: "i-10", name: "Federal Ministry of Justice", country: "NG", category: "Government" },
+];
+
+export type FollowUp = {
+  id: string;
+  recommendationId: string;
+  date: string;
+  status: Status;
+  note: { en: string; fr: string };
+  author: string;
+};
+
+export type Recommendation = {
+  id: string;
+  code: string;
+  title: { en: string; fr: string };
+  summary: { en: string; fr: string };
+  body: { en: string; fr: string };
+  missionId: string;
+  institutionId: string;
+  theme: Theme;
+  status: Status;
+  priority: Priority;
+  visibility: Visibility;
+  issuedDate: string;
+  lastUpdate: string;
+  followUps: FollowUp[];
+  sources: { label: string; url?: string; pageRef?: string }[];
+};
+
+export const recommendations: Recommendation[] = [
+  {
+    id: "r-001",
+    code: "REC-KE-2022-001",
+    title: {
+      en: "Reform the timeline for results transmission and publication",
+      fr: "Réformer le calendrier de transmission et de publication des résultats",
+    },
+    summary: {
+      en: "Adopt binding statutory deadlines for the transmission of polling-station results and the publication of disaggregated results in machine-readable formats.",
+      fr: "Adopter des délais légaux contraignants pour la transmission des résultats par bureau et la publication désagrégée en formats ouverts.",
+    },
+    body: {
+      en: "Following the contested timeline observed in 2022, the IEBC should propose statutory amendments to formalise transmission deadlines, integrate end-to-end traceability of result forms, and publish polling-station-level results in open machine-readable formats within 72 hours.",
+      fr: "À la suite du calendrier contesté observé en 2022, l'IEBC devrait proposer des amendements légaux pour formaliser les délais de transmission, intégrer une traçabilité de bout en bout des procès-verbaux et publier les résultats au niveau des bureaux en formats ouverts dans les 72 heures.",
+    },
+    missionId: "m-ke-2022",
+    institutionId: "i-1",
+    theme: "results",
+    status: "in_progress",
+    priority: "high",
+    visibility: "public",
+    issuedDate: "2022-09-12",
+    lastUpdate: "2024-11-04",
+    followUps: [
+      {
+        id: "f-001-1",
+        recommendationId: "r-001",
+        date: "2023-04-20",
+        status: "new",
+        note: {
+          en: "Recommendation issued and shared with the IEBC and Parliament.",
+          fr: "Recommandation émise et transmise à l'IEBC et au Parlement.",
+        },
+        author: "ELDA AFRICA Secretariat",
+      },
+      {
+        id: "f-001-2",
+        recommendationId: "r-001",
+        date: "2024-02-10",
+        status: "in_progress",
+        note: {
+          en: "Draft amendments tabled in the Justice Committee.",
+          fr: "Projets d'amendements déposés en commission justice.",
+        },
+        author: "Mission de suivi Nairobi",
+      },
+      {
+        id: "f-001-3",
+        recommendationId: "r-001",
+        date: "2024-11-04",
+        status: "in_progress",
+        note: {
+          en: "Public consultations launched on the bill.",
+          fr: "Consultations publiques lancées sur le projet de loi.",
+        },
+        author: "ELDA AFRICA Field Office",
+      },
+    ],
+    sources: [
+      { label: "ELDA AFRICA EOM Final Report 2022", pageRef: "p. 84–87" },
+      { label: "Kenya Gazette Notice", url: "https://example.org/gazette" },
+    ],
+  },
+  {
+    id: "r-002",
+    code: "REC-NG-2023-014",
+    title: {
+      en: "Strengthen the legal framework on campaign finance disclosure",
+      fr: "Renforcer le cadre légal de divulgation du financement des campagnes",
+    },
+    summary: {
+      en: "Introduce mandatory itemised disclosure of campaign contributions above defined thresholds with independent audit.",
+      fr: "Introduire une divulgation obligatoire et détaillée des contributions de campagne au-delà de seuils définis, avec audit indépendant.",
+    },
+    body: {
+      en: "INEC and the National Assembly should jointly review the Electoral Act to introduce real-time disclosure obligations, public registers of donors and an independent audit mechanism.",
+      fr: "L'INEC et l'Assemblée Nationale devraient réviser conjointement la loi électorale afin d'introduire des obligations de divulgation en temps réel, des registres publics de donateurs et un mécanisme d'audit indépendant.",
+    },
+    missionId: "m-ng-2023",
+    institutionId: "i-2",
+    theme: "campaign",
+    status: "partial",
+    priority: "high",
+    visibility: "public",
+    issuedDate: "2023-05-22",
+    lastUpdate: "2024-09-15",
+    followUps: [
+      {
+        id: "f-002-1",
+        recommendationId: "r-002",
+        date: "2023-11-15",
+        status: "in_progress",
+        note: {
+          en: "Working group convened with civil society.",
+          fr: "Groupe de travail convoqué avec la société civile.",
+        },
+        author: "Abuja Office",
+      },
+      {
+        id: "f-002-2",
+        recommendationId: "r-002",
+        date: "2024-09-15",
+        status: "partial",
+        note: {
+          en: "Disclosure thresholds adopted, audit mechanism still pending.",
+          fr: "Seuils de divulgation adoptés, mécanisme d'audit toujours en attente.",
+        },
+        author: "ELDA AFRICA Country Lead",
+      },
+    ],
+    sources: [{ label: "INEC Reform Memorandum", pageRef: "Annex C" }],
+  },
+  {
+    id: "r-003",
+    code: "REC-SN-2024-007",
+    title: {
+      en: "Guarantee the constitutional electoral calendar",
+      fr: "Garantir le calendrier électoral constitutionnel",
+    },
+    summary: {
+      en: "Establish institutional safeguards preventing the unilateral postponement of presidential elections.",
+      fr: "Établir des garanties institutionnelles empêchant le report unilatéral des élections présidentielles.",
+    },
+    body: {
+      en: "Following the postponement attempt of February 2024, the constitutional framework should be reinforced to ensure judicial oversight of any modification to the electoral calendar.",
+      fr: "À la suite de la tentative de report de février 2024, le cadre constitutionnel devrait être renforcé pour garantir un contrôle juridictionnel de toute modification du calendrier électoral.",
+    },
+    missionId: "m-sn-2024",
+    institutionId: "i-3",
+    theme: "legal",
+    status: "implemented",
+    priority: "high",
+    visibility: "public",
+    issuedDate: "2024-04-30",
+    lastUpdate: "2024-08-12",
+    followUps: [
+      {
+        id: "f-003-1",
+        recommendationId: "r-003",
+        date: "2024-08-12",
+        status: "implemented",
+        note: {
+          en: "Constitutional Council reaffirmed binding electoral calendar.",
+          fr: "Le Conseil constitutionnel a réaffirmé le caractère contraignant du calendrier.",
+        },
+        author: "Dakar Office",
+      },
+    ],
+    sources: [{ label: "Conseil Constitutionnel — Décision n° 1/C/2024" }],
+  },
+  {
+    id: "r-004",
+    code: "REC-ZA-2024-003",
+    title: {
+      en: "Improve accessibility of polling stations for persons with disabilities",
+      fr: "Améliorer l'accessibilité des bureaux de vote pour les personnes handicapées",
+    },
+    summary: {
+      en: "Adopt minimum accessibility standards and dedicated training for polling staff.",
+      fr: "Adopter des standards minimum d'accessibilité et une formation dédiée du personnel électoral.",
+    },
+    body: {
+      en: "The IEC should adopt binding accessibility standards and integrate disability-inclusive practices in polling officer training and station design.",
+      fr: "L'IEC devrait adopter des standards d'accessibilité contraignants et intégrer des pratiques inclusives dans la formation des agents et la conception des bureaux.",
+    },
+    missionId: "m-za-2024",
+    institutionId: "i-4",
+    theme: "inclusion",
+    status: "in_progress",
+    priority: "medium",
+    visibility: "public",
+    issuedDate: "2024-06-28",
+    lastUpdate: "2024-12-01",
+    followUps: [
+      {
+        id: "f-004-1",
+        recommendationId: "r-004",
+        date: "2024-12-01",
+        status: "in_progress",
+        note: {
+          en: "Pilot accessibility audit launched in three provinces.",
+          fr: "Audit pilote d'accessibilité lancé dans trois provinces.",
+        },
+        author: "Pretoria Office",
+      },
+    ],
+    sources: [{ label: "ELDA AFRICA EOM Final Report 2024 — South Africa", pageRef: "p. 51" }],
+  },
+  {
+    id: "r-005",
+    code: "REC-GH-2024-011",
+    title: {
+      en: "Enhance media regulation during the campaign period",
+      fr: "Renforcer la régulation des médias en période de campagne",
+    },
+    summary: {
+      en: "Strengthen the National Media Commission's mandate to monitor balance and disinformation.",
+      fr: "Renforcer le mandat de la Commission nationale des médias sur la couverture équilibrée et la désinformation.",
+    },
+    body: {
+      en: "Adopt clear standards on equitable airtime, expedited complaint handling and a structured response to electoral disinformation.",
+      fr: "Adopter des standards clairs sur le temps d'antenne équitable, le traitement accéléré des plaintes et une réponse structurée à la désinformation électorale.",
+    },
+    missionId: "m-gh-2024",
+    institutionId: "i-5",
+    theme: "media",
+    status: "new",
+    priority: "medium",
+    visibility: "public",
+    issuedDate: "2024-12-22",
+    lastUpdate: "2024-12-22",
+    followUps: [],
+    sources: [{ label: "EOM Preliminary Statement", pageRef: "§14" }],
+  },
+  {
+    id: "r-006",
+    code: "REC-TN-2024-002",
+    title: {
+      en: "Reinforce the autonomy of the electoral commission",
+      fr: "Renforcer l'autonomie de la commission électorale",
+    },
+    summary: {
+      en: "Restore independence in budget execution and member appointments.",
+      fr: "Restaurer l'indépendance budgétaire et dans la nomination des membres.",
+    },
+    body: {
+      en: "Constitutional and legal reforms should restore the procedural and budgetary independence of the ISIE.",
+      fr: "Des réformes constitutionnelles et légales devraient rétablir l'indépendance procédurale et budgétaire de l'ISIE.",
+    },
+    missionId: "m-tn-2024",
+    institutionId: "i-6",
+    theme: "admin",
+    status: "not_implemented",
+    priority: "high",
+    visibility: "public",
+    issuedDate: "2024-11-12",
+    lastUpdate: "2025-01-20",
+    followUps: [
+      {
+        id: "f-006-1",
+        recommendationId: "r-006",
+        date: "2025-01-20",
+        status: "not_implemented",
+        note: {
+          en: "No reform initiative tabled to date.",
+          fr: "Aucune initiative de réforme déposée à ce jour.",
+        },
+        author: "Tunis Office",
+      },
+    ],
+    sources: [{ label: "ELDA AFRICA Technical Assistance Report 2024" }],
+  },
+  {
+    id: "r-007",
+    code: "REC-MZ-2024-018",
+    title: {
+      en: "Independent audit of the voter register",
+      fr: "Audit indépendant du fichier électoral",
+    },
+    summary: {
+      en: "Commission an independent audit ahead of the next general elections.",
+      fr: "Commander un audit indépendant en amont des prochaines élections générales.",
+    },
+    body: {
+      en: "An independent technical audit should assess accuracy, completeness and disaggregation of the voter register.",
+      fr: "Un audit technique indépendant devrait évaluer l'exactitude, l'exhaustivité et la désagrégation du fichier.",
+    },
+    missionId: "m-mz-2024",
+    institutionId: "i-7",
+    theme: "voter",
+    status: "in_progress",
+    priority: "high",
+    visibility: "public",
+    issuedDate: "2024-11-25",
+    lastUpdate: "2025-02-10",
+    followUps: [
+      {
+        id: "f-007-1",
+        recommendationId: "r-007",
+        date: "2025-02-10",
+        status: "in_progress",
+        note: {
+          en: "Terms of reference under review by CNE.",
+          fr: "Termes de référence en cours d'examen par la CNE.",
+        },
+        author: "Maputo Office",
+      },
+    ],
+    sources: [{ label: "EOM Statement of Preliminary Findings" }],
+  },
+  {
+    id: "r-008",
+    code: "REC-MG-2023-005",
+    title: {
+      en: "Enhance dispute resolution mechanisms",
+      fr: "Améliorer les mécanismes de résolution des contentieux",
+    },
+    summary: {
+      en: "Streamline electoral dispute timelines and publish reasoned decisions.",
+      fr: "Rationaliser les délais des contentieux électoraux et publier les décisions motivées.",
+    },
+    body: {
+      en: "The HCC should publish reasoned decisions and align dispute timelines with constitutional deadlines.",
+      fr: "La HCC devrait publier les décisions motivées et aligner les délais avec les échéances constitutionnelles.",
+    },
+    missionId: "m-mg-2023",
+    institutionId: "i-8",
+    theme: "results",
+    status: "partial",
+    priority: "medium",
+    visibility: "public",
+    issuedDate: "2024-01-18",
+    lastUpdate: "2024-10-08",
+    followUps: [
+      {
+        id: "f-008-1",
+        recommendationId: "r-008",
+        date: "2024-10-08",
+        status: "partial",
+        note: {
+          en: "Reasoned decisions now published; timeline reform pending.",
+          fr: "Décisions motivées désormais publiées ; réforme des délais en attente.",
+        },
+        author: "Antananarivo Office",
+      },
+    ],
+    sources: [{ label: "HCC Annual Report 2024" }],
+  },
+  {
+    id: "r-009",
+    code: "REC-KE-2022-022",
+    title: {
+      en: "Civic and voter education for first-time voters",
+      fr: "Éducation civique et électorale des primo-votants",
+    },
+    summary: {
+      en: "Develop a national strategy targeting youth and first-time voters.",
+      fr: "Élaborer une stratégie nationale ciblant la jeunesse et les primo-votants.",
+    },
+    body: {
+      en: "A multi-year civic education strategy should be co-designed with civil society and educational institutions.",
+      fr: "Une stratégie pluriannuelle d'éducation civique devrait être coconstruite avec la société civile et les institutions éducatives.",
+    },
+    missionId: "m-ke-2022",
+    institutionId: "i-1",
+    theme: "civic",
+    status: "implemented",
+    priority: "medium",
+    visibility: "public",
+    issuedDate: "2022-09-12",
+    lastUpdate: "2024-06-05",
+    followUps: [
+      {
+        id: "f-009-1",
+        recommendationId: "r-009",
+        date: "2024-06-05",
+        status: "implemented",
+        note: {
+          en: "National civic education strategy 2024–2027 adopted.",
+          fr: "Stratégie nationale d'éducation civique 2024–2027 adoptée.",
+        },
+        author: "ELDA AFRICA Secretariat",
+      },
+    ],
+    sources: [{ label: "Kenya Civic Education Framework 2024" }],
+  },
+  {
+    id: "r-010",
+    code: "REC-NG-2023-031",
+    title: {
+      en: "Secure the BVAS results upload chain",
+      fr: "Sécuriser la chaîne de téléversement des résultats BVAS",
+    },
+    summary: {
+      en: "Audit and harden the BVAS results upload chain end to end.",
+      fr: "Auditer et durcir de bout en bout la chaîne de téléversement BVAS.",
+    },
+    body: {
+      en: "An end-to-end security review of the BVAS results upload chain should be undertaken with public publication of audit summaries.",
+      fr: "Un audit de sécurité de bout en bout de la chaîne BVAS devrait être réalisé avec publication des synthèses.",
+    },
+    missionId: "m-ng-2023",
+    institutionId: "i-2",
+    theme: "security",
+    status: "in_progress",
+    priority: "high",
+    visibility: "public",
+    issuedDate: "2023-05-22",
+    lastUpdate: "2024-12-19",
+    followUps: [
+      {
+        id: "f-010-1",
+        recommendationId: "r-010",
+        date: "2024-12-19",
+        status: "in_progress",
+        note: {
+          en: "INEC commissioned a third-party audit; report expected Q2 2025.",
+          fr: "L'INEC a commandé un audit tiers ; rapport attendu T2 2025.",
+        },
+        author: "Abuja Office",
+      },
+    ],
+    sources: [{ label: "INEC Tech Assessment 2024" }],
+  },
+  {
+    id: "r-011",
+    code: "REC-GH-2024-019",
+    title: {
+      en: "Publish polling-station-level results as open data",
+      fr: "Publier les résultats par bureau de vote en données ouvertes",
+    },
+    summary: {
+      en: "Adopt an open-data policy for disaggregated results.",
+      fr: "Adopter une politique de données ouvertes pour les résultats désagrégés.",
+    },
+    body: {
+      en: "All polling-station results should be published in machine-readable formats with persistent identifiers within 72 hours.",
+      fr: "Tous les résultats par bureau devraient être publiés en formats ouverts avec identifiants persistants dans les 72 heures.",
+    },
+    missionId: "m-gh-2024",
+    institutionId: "i-5",
+    theme: "results",
+    status: "new",
+    priority: "high",
+    visibility: "public",
+    issuedDate: "2024-12-22",
+    lastUpdate: "2024-12-22",
+    followUps: [],
+    sources: [{ label: "EOM Preliminary Statement Ghana 2024" }],
+  },
+  {
+    id: "r-012",
+    code: "REC-ZA-2024-009",
+    title: {
+      en: "Codify the regulation of independent candidates",
+      fr: "Codifier la réglementation des candidats indépendants",
+    },
+    summary: {
+      en: "Consolidate independent candidate regulations into a single statute.",
+      fr: "Consolider la réglementation des candidats indépendants en un seul texte.",
+    },
+    body: {
+      en: "Following the 2024 reform, dispersed regulations should be consolidated to provide clarity for future cycles.",
+      fr: "Suite à la réforme de 2024, les règles dispersées devraient être consolidées pour clarifier les cycles futurs.",
+    },
+    missionId: "m-za-2024",
+    institutionId: "i-4",
+    theme: "legal",
+    status: "unknown",
+    priority: "low",
+    visibility: "internal",
+    issuedDate: "2024-06-28",
+    lastUpdate: "2024-09-30",
+    followUps: [],
+    sources: [],
+  },
+];
+
+export const themeList: Theme[] = [
+  "legal",
+  "admin",
+  "voter",
+  "campaign",
+  "media",
+  "results",
+  "inclusion",
+  "security",
+  "civic",
+];
+
+export const statusList: Status[] = [
+  "new",
+  "in_progress",
+  "partial",
+  "implemented",
+  "not_implemented",
+  "unknown",
+];
+
+// Helpers
+export function countryName(code: string, locale: "en" | "fr") {
+  const c = countries.find((x) => x.code === code);
+  return c ? c.name[locale] : code;
+}
+
+export function missionById(id: string) {
+  return missions.find((m) => m.id === id);
+}
+
+export function institutionById(id: string) {
+  return institutions.find((i) => i.id === id);
+}
+
+export function recommendationById(id: string) {
+  return recommendations.find((r) => r.id === id);
+}
+
+export function publicRecommendations() {
+  return recommendations.filter((r) => r.visibility === "public");
+}
