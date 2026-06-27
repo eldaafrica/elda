@@ -356,3 +356,133 @@ df -h /                   # Disque global
 | Frontend   | https://www.elda.africa                                |
 | API REST   | https://api.elda.africa/api                            |
 | Swagger UI | https://api.elda.africa/api/swagger-ui.html            |
+
+---
+
+## 10. Import des données — Union Africaine
+
+Importation des rapports d'observation électorale depuis `https://au.int/fr/election-reports`
+vers la base de données ELDA Africa.
+
+### Localisation du script
+
+```
+scripts/import/
+├── import_au.py        # Script principal
+├── requirements.txt    # Dépendances Python
+├── scraped_data.json   # Données scrapées (généré automatiquement, ne pas versionner)
+└── .venv/              # Environnement virtuel Python (ne pas versionner)
+```
+
+### Installation (première fois)
+
+```bash
+cd scripts/import
+
+# Créer l'environnement virtuel
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Installer les dépendances
+pip install -r requirements.txt
+```
+
+### Ordre d'insertion en base
+
+Le script insère les entités dans cet ordre pour respecter les dépendances :
+
+```
+1. Country      — pays ISO (code, region, translations)
+2. Institution  — AUEOM (une seule, créée une fois)
+3. Mission      — un rapport = une mission
+4. Recommendation — extraites du PDF de chaque rapport
+```
+
+### Commandes
+
+```bash
+source .venv/bin/activate
+
+# ── Scraping ──────────────────────────────────────────────────────
+# Scraper tous les rapports (sauvegarde dans scraped_data.json)
+python import_au.py --scrape
+
+# Scraper seulement N rapports (test)
+python import_au.py --scrape --limit 5
+
+# ── Import en base locale ─────────────────────────────────────────
+# Simulation (aucun appel API réel)
+python import_au.py --import --local --dry-run
+
+# Import réel → API locale (localhost:5600)
+python import_au.py --import --local
+
+# ── Import en production ──────────────────────────────────────────
+# Simulation production
+python import_au.py --import --prod --dry-run
+
+# Import réel → https://api.elda.africa/api
+python import_au.py --import --prod
+
+# ── Tout d'un coup (scraping + import prod) ───────────────────────
+python import_au.py --scrape --import --prod
+```
+
+### Résultat du premier import (juin 2026)
+
+| Entité          | Quantité importée |
+|-----------------|-------------------|
+| Pays            | 23                |
+| Institutions    | 1 (AUEOM)         |
+| Missions        | 76                |
+| Recommandations | ~180              |
+
+Source : 76 rapports d'observation électorale (2017–2024), toutes langues confondues.
+
+### Détection automatique des thèmes
+
+Le script classifie chaque recommandation selon des mots-clés :
+
+| Thème           | Mots-clés déclencheurs                               |
+|-----------------|------------------------------------------------------|
+| `JURIDIQUE`     | loi, constitution, code électoral, cadre légal       |
+| `ADMINISTRATION`| commission, CENI, gestion, liste électorale          |
+| `ELECTEURS`     | inscription, enrôlement, biométrique, voters         |
+| `CAMPAGNE`      | campagne, candidats, financement, partis             |
+| `MEDIAS`        | médias, presse, radio, réseaux sociaux               |
+| `RESULTATS`     | résultats, dépouillement, compilation, contentieux   |
+| `INCLUSION`     | femmes, jeunes, genre, handicap, inclusion           |
+| `SECURITE`      | sécurité, violence, intimidation                     |
+| `CIVISME`       | civisme, éducation civique, culture démocratique     |
+
+### Relancer un import partiel
+
+Le fichier `scraped_data.json` permet de relancer l'import sans rescraper le site AU :
+
+```bash
+# Rescraper uniquement
+python import_au.py --scrape
+
+# Réimporter depuis le JSON existant (sans rescraper)
+python import_au.py --import --prod
+```
+
+### Vérifier les données après import
+
+```bash
+# Nombre de pays en base
+curl -s https://api.elda.africa/api/countries | python3 -m json.tool | grep -c '"code"'
+
+# Nombre de missions
+curl -s https://api.elda.africa/api/missions | python3 -m json.tool
+
+# Nombre de recommandations
+curl -s https://api.elda.africa/api/recommendations | python3 -m json.tool
+```
+
+### Avertissements
+
+- `scraped_data.json` contient des données publiques, pas de secrets — mais ne pas le versionner car il peut être volumineux.
+- `.venv/` ne doit jamais être versionné (déjà dans `.gitignore`).
+- 5 rapports sur 76 ont un `country_code` non résolu (titres tronqués ou pays non reconnu) — les missions correspondantes sont créées sans pays associé.
+- Les textes de recommandations sont extraits automatiquement des PDFs : la qualité dépend du format du PDF (certains rapports en colonnes peuvent avoir un texte mal ordonné).
