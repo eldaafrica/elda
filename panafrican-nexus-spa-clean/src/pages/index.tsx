@@ -36,9 +36,11 @@ function HomePage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [featured, setFeatured] = useState<Recommendation[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
+  const [countByCountry, setCountByCountry] = useState<Record<string, number>>({});
   const [themeData, setThemeData] = useState<ThemeEntry[]>([]);
   const [regionData, setRegionData] = useState<RegionEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAllCountries, setShowAllCountries] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -58,6 +60,13 @@ function HomePage() {
         // Build theme chart from all published
         const allRes = await publicService.listPublished({ page: 0, size: 500 });
         const all: Recommendation[] = (allRes as any).content ?? (allRes as any).data ?? [];
+
+        // Count recommendations per country
+        const perCountry: Record<string, number> = {};
+        for (const r of all) {
+          if (r.codeCountry) perCountry[r.codeCountry] = (perCountry[r.codeCountry] ?? 0) + 1;
+        }
+        setCountByCountry(perCountry);
 
         const byTheme: ThemeEntry[] = themeList.map((th) => ({
           theme: t(`theme.${th}` as any).split(" ")[0],
@@ -267,21 +276,42 @@ function HomePage() {
             <h2 className="mt-2 font-display text-3xl">{t("home.map.title")}</h2>
             <p className="mt-3 text-muted-foreground">{t("home.map.lede")}</p>
             <ul className="mt-6 space-y-2">
-              {countries.slice(0, 8).map((c) => (
-                <li
-                  key={c.code}
-                  className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2"
-                >
-                  <span className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-muted-foreground">{c.code}</span>
-                    <span className="text-sm">{getCountryName(c, locale)}</span>
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {t(`region.${c.region}` as any)}
-                  </span>
-                </li>
-              ))}
+              {(showAllCountries ? countries : countries.slice(0, 8)).map((c) => {
+                const recoCount = countByCountry[c.code] ?? 0;
+                return (
+                  <li key={c.code}>
+                    <Link
+                      to={`/recommendations?country=${c.code}`}
+                      className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2 hover:border-ochre/60 hover:bg-accent transition-colors"
+                    >
+                      <span className="flex items-center gap-3">
+                        <span className="font-mono text-xs text-muted-foreground w-6">{c.code}</span>
+                        <span className="text-sm">{getCountryName(c, locale)}</span>
+                      </span>
+                      <span className="flex items-center gap-3 shrink-0">
+                        {recoCount > 0 && (
+                          <span className="rounded-full bg-ochre/10 px-2 py-0.5 text-[11px] font-medium text-ochre">
+                            {recoCount} {t("recos.results")}
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground hidden sm:block">
+                          {t(`region.${c.region}` as any)}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
+
+            {countries.length > 10 && (
+              <button
+                onClick={() => setShowAllCountries((v) => !v)}
+                className="mt-4 text-sm font-medium text-primary hover:underline"
+              >
+                {showAllCountries ? t("home.map.showLess") : `${t("home.map.showAll")} (${countries.length})`}
+              </button>
+            )}
           </div>
 
           <div className="md:col-span-7 rounded-xl border border-border bg-card p-6">

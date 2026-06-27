@@ -48,6 +48,8 @@ const en: Dict = {
   "home.map.title": "Continental coverage",
   "home.map.lede":
     "Distribution of published records across African countries and electoral cycles.",
+  "home.map.showAll": "See all countries",
+  "home.map.showLess": "Show less",
 
   // Recommendations (public)
   "recos.title": "Recommendations",
@@ -510,6 +512,8 @@ const fr: Dict = {
   "home.map.title": "Couverture continentale",
   "home.map.lede":
     "Distribution des fiches publiées à travers les pays africains et les cycles électoraux.",
+  "home.map.showAll": "Voir tous les pays",
+  "home.map.showLess": "Voir moins",
 
   // Recommendations (public)
   "recos.title": "Recommandations",

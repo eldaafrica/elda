@@ -4,12 +4,13 @@ import { PublicLayout } from "@/components/public-layout";
 import { useI18n } from "@/lib/i18n";
 import { StatusBadge, ThemeChip, PriorityBadge } from "@/components/badges";
 import { ArrowLeft, Calendar, FileText, Share2, Building2, Map } from "lucide-react";
-import { recommendationService } from "@/services/recommendationService";
-import { getTranslation } from "@/lib/translation";
+import { recommendationService, publicService } from "@/services/recommendationService";
+import { getTranslation, getCountryName } from "@/lib/translation";
 import { followUpService, type FollowUp } from "@/services/followUpService";
 import { missionService } from "@/services/missionService";
 import { institutionService } from "@/services/institutionService";
 import type { Recommendation, Mission } from "@/types";
+import type { Country } from "@/types/country";
 
 type Institution = { id: string; name: string; category?: string; country?: string };
 
@@ -21,6 +22,7 @@ function RecommendationDetailPage() {
   const [mission, setMission] = useState<Mission | null>(null);
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
+  const [country, setCountry] = useState<Country | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -47,6 +49,16 @@ function RecommendationDetailPage() {
             setInstitution(inst as Institution);
           } catch {
             // institution optional
+          }
+        }
+
+        if (r.codeCountry) {
+          try {
+            const allCountries = await publicService.getCountries();
+            const found = allCountries.find((c: Country) => c.code === r.codeCountry);
+            if (found) setCountry(found);
+          } catch {
+            // country optional
           }
         }
       } catch {
@@ -168,9 +180,9 @@ function RecommendationDetailPage() {
                           <span className="text-xs font-mono text-muted-foreground">{f.date}</span>
                           <StatusBadge status={f.statut} />
                         </div>
-                        {(locale === "fr" ? f.noteFr : f.noteEn) && (
+                        {f.translations?.[locale] && (
                           <p className="mt-2 text-sm text-foreground/85">
-                            {locale === "fr" ? f.noteFr : f.noteEn}
+                            {f.translations[locale]}
                           </p>
                         )}
                         {f.author && (
@@ -266,7 +278,14 @@ function RecommendationDetailPage() {
               <MetaRow label={t("detail.status")} value={t(`statut.${reco.statut}` as any)} />
               <MetaRow label={t("detail.priority")} value={t(`priorite.${reco.priorite}` as any)} />
               {reco.codeCountry && (
-                <MetaRow label={t("detail.country")} value={reco.codeCountry} />
+                <MetaRow
+                  label={t("detail.country")}
+                  value={
+                    country
+                      ? `${getCountryName(country, locale)} (${reco.codeCountry})`
+                      : reco.codeCountry
+                  }
+                />
               )}
             </div>
 
