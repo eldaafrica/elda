@@ -10,6 +10,7 @@ import org.eisa.nexus.service.FollowUpService;
 import org.eisa.nexus.service.InstitutionService;
 import org.eisa.nexus.service.MissionService;
 import org.eisa.nexus.service.RecommendationService;
+import org.eisa.nexus.service.SiteParamService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ public class PublicController {
     private final InstitutionService institutionService;
     private final FollowUpService followUpService;
     private final CountryService countryService;
+    private final SiteParamService siteParamService;
 
     @Operation(summary = "Récupérer une recommandation publique par ID")
     @GetMapping("/recommendations/{id}")
@@ -97,5 +99,13 @@ public class PublicController {
     @GetMapping("/countries")
     public List<Country> publicCountries() {
         return countryService.findByAllCountry();
+    }
+
+    @Operation(summary = "Paramètres dynamiques du site (page À propos, etc.)")
+    @GetMapping("/site-params")
+    public java.util.Map<String, java.util.Map<String, String>> publicSiteParams() {
+        java.util.Map<String, java.util.Map<String, String>> result = new java.util.LinkedHashMap<>();
+        siteParamService.findAll().forEach(p -> result.put(p.getParamKey(), p.getTranslations()));
+        return result;
     }
 }

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { useI18n } from "@/lib/i18n";
 import { publicService } from "@/services/recommendationService";
 import { useLanguages } from "@/hooks/useLanguages";
-import { Trash2 } from "lucide-react";
+import { Trash2, Check, Save } from "lucide-react";
+import { siteParamService, type SiteParams } from "@/services/siteParamService";
 
 type Stats = {
   totalRecommendations: number;
@@ -28,6 +29,9 @@ function SettingsPage() {
     >
       <div className="mb-4">
         <LanguageCard />
+      </div>
+      <div className="mb-4">
+        <AboutCard />
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <Card
@@ -232,6 +236,142 @@ function ReferenceRow({
         {count !== undefined ? count : "—"} enregistrements →
       </Link>
     </li>
+  );
+}
+
+const ABOUT_GROUPS: { title: string; fields: { key: string; label: string; multiline?: boolean }[] }[] = [
+  {
+    title: "En-tête",
+    fields: [
+      { key: "about.title", label: "Titre de la page" },
+      { key: "about.lede", label: "Introduction (lede)", multiline: true },
+    ],
+  },
+  {
+    title: "Objectif",
+    fields: [
+      { key: "about.purpose.title", label: "Titre" },
+      { key: "about.purpose.body", label: "Corps du texte", multiline: true },
+    ],
+  },
+  {
+    title: "Gouvernance",
+    fields: [
+      { key: "about.governance.title", label: "Titre" },
+      { key: "about.governance.body", label: "Corps du texte", multiline: true },
+    ],
+  },
+  {
+    title: "Principes clés",
+    fields: [
+      { key: "about.principles.title", label: "Titre de section" },
+      { key: "about.principles.1", label: "Principe 1" },
+      { key: "about.principles.2", label: "Principe 2" },
+      { key: "about.principles.3", label: "Principe 3" },
+      { key: "about.principles.4", label: "Principe 4" },
+    ],
+  },
+];
+
+function AboutCard() {
+  const [params, setParams] = useState<SiteParams>({});
+  const [dirty, setDirty] = useState<SiteParams>({});
+  const [saving, setSaving] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    siteParamService.getAll().then((data) => {
+      setParams(data);
+      setDirty(data);
+    }).catch(() => {});
+  }, []);
+
+  const handleChange = (key: string, lang: string, value: string) => {
+    setDirty((prev) => ({
+      ...prev,
+      [key]: { ...(prev[key] ?? {}), [lang]: value },
+    }));
+  };
+
+  const handleSave = async (key: string) => {
+    setSaving(key);
+    try {
+      await siteParamService.upsert(key, dirty[key] ?? {});
+      setParams((prev) => ({ ...prev, [key]: dirty[key] ?? {} }));
+      setSaved(key);
+      if (savedTimer.current) clearTimeout(savedTimer.current);
+      savedTimer.current = setTimeout(() => setSaved(null), 2000);
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-5">
+      <div className="font-display text-lg">Page « À propos »</div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        Contenu affiché sur la page publique /about. Les modifications sont actives immédiatement après sauvegarde.
+      </div>
+
+      <div className="mt-6 space-y-8">
+        {ABOUT_GROUPS.map((group) => (
+          <div key={group.title}>
+            <h3 className="mb-3 border-b border-border pb-2 text-sm font-semibold">
+              {group.title}
+            </h3>
+            <div className="space-y-5">
+              {group.fields.map((field) => (
+                <div key={field.key}>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {field.label}
+                    </span>
+                    <button
+                      onClick={() => handleSave(field.key)}
+                      disabled={saving === field.key}
+                      className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                    >
+                      {saved === field.key ? (
+                        <><Check className="h-3 w-3" /> Sauvegardé</>
+                      ) : saving === field.key ? (
+                        "…"
+                      ) : (
+                        <><Save className="h-3 w-3" /> Sauvegarder</>
+                      )}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {(["fr", "en"] as const).map((lang) => (
+                      <div key={lang} className="space-y-1">
+                        <span className="block text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                          {lang}
+                        </span>
+                        {field.multiline ? (
+                          <textarea
+                            rows={3}
+                            value={dirty[field.key]?.[lang] ?? ""}
+                            onChange={(e) => handleChange(field.key, lang, e.target.value)}
+                            className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            value={dirty[field.key]?.[lang] ?? ""}
+                            onChange={(e) => handleChange(field.key, lang, e.target.value)}
+                            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
