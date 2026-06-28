@@ -25,6 +25,8 @@ import { useRecommendations } from "@/hooks/useRecommendations";
 import { useAuth } from "@/context/AuthContext";
 import { getTranslation } from "@/lib/translation";
 import { statusList } from "@/lib/mock-data";
+import { userService } from "@/services/userService";
+import type { User } from "@/types/user";
 
 type FormValues = {
   recommendationId: string;
@@ -57,8 +59,11 @@ export function FollowUpFormDialog({
   const { languages } = useLanguages();
   const { recommendations } = useRecommendations({ size: 200 });
 
-  const defaultAuthor = user?.name ?? user?.email ?? "";
+  const [users, setUsers] = useState<User[]>([]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const defaultSourceLang = languages.find(l => l.code === "fr") ? "fr" : (languages[0]?.code ?? "fr");
+  const defaultAuthor = user?.name ?? user?.email ?? "";
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -71,8 +76,12 @@ export function FollowUpFormDialog({
     },
   });
 
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const watchedSourceLang = form.watch("sourceLang");
+
+  // Load users for author select
+  useEffect(() => {
+    userService.findAll().then(setUsers).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -129,7 +138,7 @@ export function FollowUpFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-lg max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>
             {initial ? t("form.followup.update") : t("form.followup.create")}
@@ -139,7 +148,7 @@ export function FollowUpFormDialog({
         <form onSubmit={form.handleSubmit(submit)} className="mt-2 space-y-4">
 
           {/* RECOMMENDATION */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label>
               {t("field.recommendation" as any)}
               <span className="ml-1 text-xs text-destructive">*</span>
@@ -148,25 +157,99 @@ export function FollowUpFormDialog({
               control={form.control}
               name="recommendationId"
               rules={{ required: true }}
+              render={({ field }) => {
+                const selectedReco = recommendations.find(r => r.id === field.value);
+                const triggerLabel = selectedReco
+                  ? `${selectedReco.code} — ${getTranslation(selectedReco, locale)?.title ?? selectedReco.code}`
+                  : undefined;
+                return (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={!!recommendationId && !!initial}
+                  >
+                    <SelectTrigger className={`w-full ${!field.value ? "border-destructive/60" : ""}`}>
+                      <SelectValue placeholder="Sélectionner une recommandation">
+                        {triggerLabel}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {recommendations.map(r => (
+                        <SelectItem key={r.id} value={r.id}>
+                          <span className="font-mono text-xs text-muted-foreground mr-2">{r.code}</span>
+                          {getTranslation(r, locale)?.title ?? r.code}
+                        </SelectItem>
+                      ))}
+                      {recommendations.length === 0 && (
+                        <SelectItem value="_none" disabled>
+                          {t("common.loading")}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                );
+              }}
+            />
+          </div>
+
+          {/* DATE + STATUS — 2 colonnes sur md */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="fuDate">{t("field.date")}</Label>
+              <Input
+                id="fuDate"
+                type="date"
+                className="w-full"
+                {...form.register("date", { required: true })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>{t("field.implStatus")}</Label>
+              <Controller
+                control={form.control}
+                name="statut"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("field.selectStatus")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusList.map(s => (
+                        <SelectItem key={s} value={s}>
+                          {t(`statut.${s}` as any)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* AUTEUR — select depuis la table users */}
+          <div className="space-y-1.5">
+            <Label>{t("field.author")}</Label>
+            <Controller
+              control={form.control}
+              name="author"
               render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={!!recommendationId && !!initial}
-                >
-                  <SelectTrigger className={!field.value ? "border-destructive/60" : ""}>
-                    <SelectValue placeholder={t("field.selectMission" as any) || "Sélectionner une recommandation"} />
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t("field.author")} />
                   </SelectTrigger>
                   <SelectContent className="max-h-60">
-                    {recommendations.map(r => (
-                      <SelectItem key={r.id} value={r.id}>
-                        <span className="font-mono text-xs text-muted-foreground mr-2">{r.code}</span>
-                        {getTranslation(r, locale)?.title ?? r.code}
+                    {users.map(u => (
+                      <SelectItem key={u.id} value={u.name ?? u.email}>
+                        <span className="font-medium">{u.name}</span>
+                        {u.email && (
+                          <span className="ml-2 text-xs text-muted-foreground">{u.email}</span>
+                        )}
                       </SelectItem>
                     ))}
-                    {recommendations.length === 0 && (
-                      <SelectItem value="_none" disabled>
-                        {t("common.loading")}
+                    {users.length === 0 && (
+                      <SelectItem value={defaultAuthor || "_none"} disabled={!defaultAuthor}>
+                        {defaultAuthor || t("common.loading")}
                       </SelectItem>
                     )}
                   </SelectContent>
@@ -175,44 +258,15 @@ export function FollowUpFormDialog({
             />
           </div>
 
-          {/* DATE */}
-          <div className="space-y-2">
-            <Label htmlFor="fuDate">{t("field.date")}</Label>
-            <Input id="fuDate" type="date" {...form.register("date", { required: true })} />
-          </div>
-
-          {/* STATUS */}
-          <div className="space-y-2">
-            <Label>{t("field.implStatus")}</Label>
-            <Controller
-              control={form.control}
-              name="statut"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("field.selectStatus")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusList.map(s => (
-                      <SelectItem key={s} value={s}>
-                        {t(`statut.${s}` as any)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          {/* SOURCE LANGUAGE */}
-          <div className="space-y-2">
+          {/* SOURCE LANGUAGE + NOTE */}
+          <div className="space-y-1.5">
             <Label>{t("field.sourceLang")}</Label>
             <Controller
               control={form.control}
               name="sourceLang"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -228,8 +282,7 @@ export function FollowUpFormDialog({
             />
           </div>
 
-          {/* NOTE */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="fuNote">
               {t("field.note")}
               {watchedSourceLang && (
@@ -238,22 +291,7 @@ export function FollowUpFormDialog({
                 </span>
               )}
             </Label>
-            <Textarea id="fuNote" rows={4} {...form.register("note")} />
-          </div>
-
-          {/* AUTHOR */}
-          <div className="space-y-2">
-            <Label htmlFor="fuAuthor">{t("field.author")}</Label>
-            <Input
-              id="fuAuthor"
-              {...form.register("author")}
-              placeholder={defaultAuthor || t("field.author")}
-            />
-            {defaultAuthor && (
-              <p className="text-xs text-muted-foreground">
-                {t("common.default" as any) || "Connecté en tant que"} : {defaultAuthor}
-              </p>
-            )}
+            <Textarea id="fuNote" rows={4} className="w-full resize-none" {...form.register("note")} />
           </div>
 
           {/* ERROR */}
@@ -263,11 +301,11 @@ export function FollowUpFormDialog({
             </p>
           )}
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-2">
+            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
               {t("common.cancel")}
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
               {loading
                 ? t("common.saving")
                 : initial
