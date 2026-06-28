@@ -45,6 +45,22 @@ export const publicService = {
   getCountries(): Promise<any[]> {
     return http.get("/public/countries").then((r) => r.data);
   },
+
+  getById(id: string): Promise<any> {
+    return http.get(`/public/recommendations/${id}`).then((r) => r.data);
+  },
+
+  getFollowUps(recoId: string): Promise<any[]> {
+    return http.get(`/public/recommendations/${recoId}/followups`).then((r) => r.data);
+  },
+
+  getMissionById(id: string): Promise<any> {
+    return http.get(`/public/missions/${id}`).then((r) => r.data);
+  },
+
+  getInstitutionById(id: string): Promise<any> {
+    return http.get(`/public/institutions/${id}`).then((r) => r.data);
+  },
 };
 
 const BASE = "/recommendations";

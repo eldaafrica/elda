@@ -47,6 +47,12 @@ http.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Route publique (/public/) → pas de session à expirer, on rejette silencieusement
+    const url = original.url ?? "";
+    if (url.includes("/public/") || url.startsWith("public/")) {
+      return Promise.reject(error);
+    }
+
     // Pas de refresh token → session expirée immédiatement
     const refreshToken = tokenStorage.getRefresh();
     if (!refreshToken) {

@@ -4,11 +4,9 @@ import { PublicLayout } from "@/components/public-layout";
 import { useI18n } from "@/lib/i18n";
 import { StatusBadge, ThemeChip, PriorityBadge } from "@/components/badges";
 import { ArrowLeft, Calendar, FileText, Share2, Building2, Map } from "lucide-react";
-import { recommendationService, publicService } from "@/services/recommendationService";
+import { publicService } from "@/services/recommendationService";
 import { getTranslation, getCountryName } from "@/lib/translation";
-import { followUpService, type FollowUp } from "@/services/followUpService";
-import { missionService } from "@/services/missionService";
-import { institutionService } from "@/services/institutionService";
+import type { FollowUp } from "@/services/followUpService";
 import type { Recommendation, Mission } from "@/types";
 import type { Country } from "@/types/country";
 
@@ -32,33 +30,28 @@ function RecommendationDetailPage() {
     async function load() {
       try {
         setLoading(true);
-        const r = await recommendationService.getById(recoId!);
+        const r = await publicService.getById(recoId!);
         setReco(r);
 
-        const [missionRes, followUpsRes] = await Promise.allSettled([
-          r.missionId ? missionService.getById(r.missionId) : Promise.resolve(null),
-          followUpService.findByRecommendation(r.id),
+        const [missionRes, followUpsRes, countriesRes] = await Promise.allSettled([
+          r.missionId ? publicService.getMissionById(r.missionId) : Promise.resolve(null),
+          publicService.getFollowUps(r.id),
+          publicService.getCountries(),
         ]);
 
         if (missionRes.status === "fulfilled") setMission(missionRes.value);
-        if (followUpsRes.status === "fulfilled") setFollowUps(followUpsRes.value);
+        if (followUpsRes.status === "fulfilled") setFollowUps(followUpsRes.value ?? []);
+        if (countriesRes.status === "fulfilled" && r.codeCountry) {
+          const found = (countriesRes.value ?? []).find((c: Country) => c.code === r.codeCountry);
+          if (found) setCountry(found);
+        }
 
         if (r.institutionId) {
           try {
-            const inst = await institutionService.getById(r.institutionId);
+            const inst = await publicService.getInstitutionById(r.institutionId);
             setInstitution(inst as Institution);
           } catch {
-            // institution optional
-          }
-        }
-
-        if (r.codeCountry) {
-          try {
-            const allCountries = await publicService.getCountries();
-            const found = allCountries.find((c: Country) => c.code === r.codeCountry);
-            if (found) setCountry(found);
-          } catch {
-            // country optional
+            // institution optionnelle
           }
         }
       } catch {
