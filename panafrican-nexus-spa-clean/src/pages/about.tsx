@@ -38,7 +38,6 @@ function AboutPage() {
         </div>
       </section>
 
-      {/* Purpose + Governance */}
       <section className="mx-auto max-w-5xl px-4 md:px-6 py-16 grid gap-12 md:grid-cols-2">
         <div>
           <h2 className="font-display text-2xl">
