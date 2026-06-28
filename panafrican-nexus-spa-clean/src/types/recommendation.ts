@@ -70,6 +70,7 @@ export interface RecommendationFilters {
   q?: string;
   missionId?: string;
   institutionId?: string;
+  codeCountry?: string;
   theme?: Recommendation["theme"];
   statut?: Statut;
   priorite?: Priorite;

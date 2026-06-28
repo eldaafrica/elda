@@ -68,6 +68,7 @@ export const recommendationService = {
 
         missionId: params.missionId,
         institutionId: params.institutionId,
+        codeCountry: params.codeCountry,
 
         theme: params.theme,
         statut: params.statut,

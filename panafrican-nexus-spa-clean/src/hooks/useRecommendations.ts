@@ -41,6 +41,7 @@ export function useRecommendations(
           currentFilters.q ||
           currentFilters.missionId ||
           currentFilters.institutionId ||
+          currentFilters.codeCountry ||
           currentFilters.theme ||
           currentFilters.statut ||
           currentFilters.priorite ||
@@ -70,6 +71,7 @@ export function useRecommendations(
     filters.q,
     filters.missionId,
     filters.institutionId,
+    filters.codeCountry,
     filters.theme,
     filters.statut,
     filters.priorite,
