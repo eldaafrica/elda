@@ -29,7 +29,7 @@ public class RecommendationService {
     public Page<Recommendation> findAll(
             Theme theme, Statut statut, Visibilite visibilite, Pageable pageable) {
         return repo.findAll(
-                RecommendationSpecs.buildSearch(visibilite, null, null, theme, statut, null, null),
+                RecommendationSpecs.buildSearch(visibilite, null, null, null, theme, statut, null, null),
                 pageable);
     }
 
@@ -41,22 +41,23 @@ public class RecommendationService {
     @Transactional(readOnly = true)
     public Page<Recommendation> searchPublic(
             String missionId, String institutionId,
-            Theme theme, Statut status, Priorite priority,
+            Theme theme, Statut statut, Priorite priorite,
             String q, Pageable pageable) {
         return repo.findAll(
                 RecommendationSpecs.buildSearch(
-                        Visibilite.PUBLIC, missionId, institutionId, theme, status, priority, q),
+                        Visibilite.PUBLIC, missionId, institutionId, null, theme, statut, priorite, q),
                 pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Recommendation> search(
-            Visibilite visibility, String missionId, String institutionId,
-            Theme theme, Statut status, Priorite priority,
+            Visibilite visibilite, String missionId, String institutionId,
+            String codeCountry,
+            Theme theme, Statut statut, Priorite priorite,
             String q, Pageable pageable) {
         return repo.findAll(
                 RecommendationSpecs.buildSearch(
-                        visibility, missionId, institutionId, theme, status, priority, q),
+                        visibilite, missionId, institutionId, codeCountry, theme, statut, priorite, q),
                 pageable);
     }
 
@@ -74,6 +75,15 @@ public class RecommendationService {
     public Recommendation findById(String id) {
         return repo.findById(id)
                 .orElseThrow(() -> new NotFoundException("Recommendation " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public Recommendation findPublicById(String id) {
+        Recommendation r = findById(id);
+        if (r.getVisibilite() != Visibilite.PUBLIC) {
+            throw new NotFoundException("Recommendation " + id);
+        }
+        return r;
     }
 
     @Transactional(readOnly = true)

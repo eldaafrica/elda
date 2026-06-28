@@ -35,13 +35,14 @@ public class RecommendationController {
     public Page<Recommendation> all(
             @RequestParam(required = false) String missionId,
             @RequestParam(required = false) String institutionId,
+            @RequestParam(required = false) String codeCountry,
             @RequestParam(required = false) Theme theme,
-            @RequestParam(required = false) Statut status,
-            @RequestParam(required = false) Priorite priority,
-            @RequestParam(required = false) Visibilite visibility,
+            @RequestParam(required = false) Statut statut,
+            @RequestParam(required = false) Priorite priorite,
+            @RequestParam(required = false) Visibilite visibilite,
             @RequestParam(required = false) String q,
             @ParameterObject @PageableDefault(size = 20, sort = "lastUpdate", direction = Sort.Direction.DESC) Pageable pageable) {
-        return service.search(visibility, missionId, institutionId, theme, status, priority, q, pageable);
+        return service.search(visibilite, missionId, institutionId, codeCountry, theme, statut, priorite, q, pageable);
     }
 
   @GetMapping("/all")

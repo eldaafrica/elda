@@ -38,6 +38,10 @@ public final class RecommendationSpecs {
         return (root, q, cb) -> cb.equal(root.get("priorite"), p);
     }
 
+    public static Specification<Recommendation> byCodeCountry(String code) {
+        return (root, q, cb) -> cb.equal(root.get("codeCountry"), code);
+    }
+
     /** Full-text-like search on code and all translation title/summary values. */
     public static Specification<Recommendation> byKeyword(String keyword) {
         return (root, query, cb) -> {
@@ -57,6 +61,7 @@ public final class RecommendationSpecs {
             Visibilite visibilite,
             String missionId,
             String institutionId,
+            String codeCountry,
             Theme theme,
             Statut statut,
             Priorite priorite,
@@ -67,6 +72,7 @@ public final class RecommendationSpecs {
         if (visibilite != null)    spec = spec.and(byVisibilite(visibilite));
         if (missionId != null)     spec = spec.and(byMission(missionId));
         if (institutionId != null) spec = spec.and(byInstitution(institutionId));
+        if (codeCountry != null)   spec = spec.and(byCodeCountry(codeCountry));
         if (theme != null)         spec = spec.and(byTheme(theme));
         if (statut != null)        spec = spec.and(byStatut(statut));
         if (priorite != null)      spec = spec.and(byPriorite(priorite));

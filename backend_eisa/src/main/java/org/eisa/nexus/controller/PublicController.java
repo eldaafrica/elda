@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.eisa.nexus.entity.*;
 import org.eisa.nexus.service.CountryService;
+import org.eisa.nexus.service.FollowUpService;
+import org.eisa.nexus.service.InstitutionService;
 import org.eisa.nexus.service.MissionService;
 import org.eisa.nexus.service.RecommendationService;
 import org.springdoc.core.annotations.ParameterObject;
@@ -26,7 +28,15 @@ public class PublicController {
 
     private final RecommendationService recommendationService;
     private final MissionService missionService;
+    private final InstitutionService institutionService;
+    private final FollowUpService followUpService;
     private final CountryService countryService;
+
+    @Operation(summary = "Récupérer une recommandation publique par ID")
+    @GetMapping("/recommendations/{id}")
+    public Recommendation publicRecommendationById(@PathVariable String id) {
+        return recommendationService.findPublicById(id);
+    }
 
     @Operation(summary = "Lister les recommandations publiées avec filtres et pagination")
     @GetMapping("/recommendations")
@@ -54,6 +64,24 @@ public class PublicController {
                 "totalMissions", totalMissions,
                 "totalCountries", totalCountries
         );
+    }
+
+    @Operation(summary = "Récupérer une mission par ID (portail public)")
+    @GetMapping("/missions/{id}")
+    public Mission publicMissionById(@PathVariable String id) {
+        return missionService.findById(id);
+    }
+
+    @Operation(summary = "Récupérer une institution par ID (portail public)")
+    @GetMapping("/institutions/{id}")
+    public Institution publicInstitutionById(@PathVariable String id) {
+        return institutionService.findById(id);
+    }
+
+    @Operation(summary = "Suivis d'une recommandation publique")
+    @GetMapping("/recommendations/{id}/followups")
+    public List<FollowUp> publicFollowUps(@PathVariable String id) {
+        return followUpService.findByRecommendation(id);
     }
 
     @Operation(summary = "Lister toutes les missions (portail public)")
